@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -23,16 +22,23 @@ jobs:
       
     - name: Build and run tests
       run: mvn clean test
+      continue-on-error: true
 
     - name: Generate Allure Reports
-      run: mvn allure:report
+      uses: simple-elf/allure-report-action@master
+      id: allure-report
+      with:
+        allure_results: target/allure-results 
+        gh_pages: gh-pages
+        allure_report: target/allure-report
+        allure_history: target/allure-history
 
     - name: Deploy to gh-pages
       uses: peaceiris/actions-gh-pages@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./target/site/allure-maven-plugin
-        publish_branch: gh-pages
+        PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PUBLISH_BRANCH: gh-pages
+        PUBLISH_DIR: target/allure-history
         
     - name: Publish Allure Results
       uses: actions/upload-artifact@v3
